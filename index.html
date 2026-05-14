@@ -1260,19 +1260,8 @@ footer {
   const SUPABASE_URL = 'https://zovyjkyeoiujgbspmmxx.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpvdnlqa3llb2l1amdic3BtbXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTc3MjEsImV4cCI6MjA5NDI5MzcyMX0.9TvV0S5GnnYXdA4LA7cU2oINqdJgni2RM-1fWfrgQxE';
 
-  // Check existing session via fetch
-  async function checkSession() {
-    const token = localStorage.getItem('sb-session');
-    if (token) {
-      try {
-        const parsed = JSON.parse(token);
-        if (parsed?.access_token) {
-          window.location.href = 'dashboard.html';
-        }
-      } catch(e) {}
-    }
-  }
-  checkSession();
+  // Clear any stale session on public page
+  localStorage.removeItem('sb-session');
 
   async function handleLogin() {
     const username = document.getElementById('cid').value.trim();
