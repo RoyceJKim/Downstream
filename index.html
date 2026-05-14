@@ -1306,7 +1306,7 @@ footer {
       }
 
       localStorage.setItem('sb-session', JSON.stringify(data));
-      window.location.href = 'dashboard.html';
+      window.location.replace(window.location.origin + '/dashboard.html');
 
     } catch(e) {
       errorEl.textContent = 'Error: ' + e.message;
