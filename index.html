@@ -1111,6 +1111,27 @@ footer {
   letter-spacing: 0.02em;
 }
 
+
+.opening-tagline {
+  font-family: 'Cormorant', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  color: var(--text-ghost);
+  margin-top: 28px;
+  text-align: center;
+  font-style: italic;
+}
+
+
+.modal-error {
+  font-size: 0.62rem;
+  color: #722034;
+  margin-top: 10px;
+  text-align: center;
+  letter-spacing: 0.06em;
+  min-height: 16px;
+}
+
 </style>
 </head>
 <body>
@@ -1193,7 +1214,8 @@ footer {
       <input class="field-input" id="pass" type="password" placeholder="Passcode">
     </div>
 
-    <button class="btn-enter">Enter Portal</button>
+    <button class="btn-enter" onclick="handleLogin()">Enter Portal</button>
+    <p class="modal-error" id="loginError"></p>
     <p class="modal-rep-note">For access, contact your designated representative.</p>
 
     
@@ -1233,5 +1255,55 @@ footer {
 
   document.querySelectorAll('.practice-card').forEach(c => io.observe(c));
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://zovyjkyeoiujgbspmmxx.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpvdnlqa3llb2l1amdic3BtbXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTc3MjEsImV4cCI6MjA5NDI5MzcyMX0.9TvV0S5GnnYXdA4LA7cU2oINqdJgni2RM-1fWfrgQxE';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Check if already logged in
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = 'dashboard.html';
+  });
+
+  async function handleLogin() {
+    const username = document.getElementById('cid').value.trim();
+    const passcode = document.getElementById('pass').value.trim();
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = '';
+
+    if (!username || !passcode) {
+      errorEl.textContent = 'Please enter your credentials.';
+      return;
+    }
+
+    const btn = document.querySelector('.btn-enter');
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: username,
+      password: passcode
+    });
+
+    if (error) {
+      errorEl.textContent = 'Invalid credentials. Contact your representative.';
+      btn.textContent = 'Enter Portal';
+      btn.disabled = false;
+      return;
+    }
+
+    window.location.href = 'dashboard.html';
+  }
+
+  // Allow enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('overlay').classList.contains('open')) {
+      handleLogin();
+    }
+  });
+</script>
+
 </body>
 </html>
