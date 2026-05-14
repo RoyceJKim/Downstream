@@ -1256,16 +1256,23 @@ footer {
   document.querySelectorAll('.practice-card').forEach(c => io.observe(c));
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = 'https://zovyjkyeoiujgbspmmxx.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpvdnlqa3llb2l1amdic3BtbXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MTc3MjEsImV4cCI6MjA5NDI5MzcyMX0.9TvV0S5GnnYXdA4LA7cU2oINqdJgni2RM-1fWfrgQxE';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Check if already logged in
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) window.location.href = 'dashboard.html';
-  });
+  // Check existing session via fetch
+  async function checkSession() {
+    const token = localStorage.getItem('sb-session');
+    if (token) {
+      try {
+        const parsed = JSON.parse(token);
+        if (parsed?.access_token) {
+          window.location.href = 'dashboard.html';
+        }
+      } catch(e) {}
+    }
+  }
+  checkSession();
 
   async function handleLogin() {
     const username = document.getElementById('cid').value.trim();
@@ -1282,27 +1289,56 @@ footer {
     btn.textContent = 'Signing in...';
     btn.disabled = true;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: username,
-      password: passcode
-    });
+    try {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY
+        },
+        body: JSON.stringify({ email: username, password: passcode })
+      });
 
-    if (error) {
-      errorEl.textContent = 'Invalid credentials. Contact your representative.';
+      let data;
+      try { data = await res.json(); } catch(e) { data = {}; }
+
+      if (!res.ok || data.error || data.error_description) {
+        errorEl.textContent = data.error_description || data.msg || 'Invalid credentials. Contact your representative.';
+        btn.textContent = 'Enter Portal';
+        btn.disabled = false;
+        return;
+      }
+
+      if (!data.access_token) {
+        errorEl.textContent = 'Login failed. Please try again.';
+        btn.textContent = 'Enter Portal';
+        btn.disabled = false;
+        return;
+      }
+
+      localStorage.setItem('sb-session', JSON.stringify(data));
+      window.location.href = 'dashboard.html';
+
+    } catch(e) {
+      errorEl.textContent = 'Error: ' + e.message;
       btn.textContent = 'Enter Portal';
       btn.disabled = false;
-      return;
     }
-
-    window.location.href = 'dashboard.html';
   }
 
-  // Allow enter key to submit
+  // Enter key support
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.getElementById('overlay').classList.contains('open')) {
       handleLogin();
     }
   });
+
+  // Focus username when modal opens
+  const origOpen = openModal;
+  window.openModal = function() {
+    origOpen();
+    setTimeout(() => document.getElementById('cid').focus(), 400);
+  };
 </script>
 
 </body>
