@@ -338,6 +338,13 @@ h1.hero-headline em {
   align-items: start;
 }
 
+@media (max-width: 767px) {
+  .practice-inner { grid-template-columns: 1fr; gap: 24px; }
+  .practice { padding: 52px 20px; }
+  .bespoke-body { font-size: 1rem; line-height: 1.75; }
+  .bespoke-list { gap: 10px; font-size: 0.58rem; }
+}
+
 .practice-label {
   padding-top: 4px;
 }
@@ -674,7 +681,7 @@ footer {
   }
 
   .header-note { display: none; }
-  .logo-word { font-size: 0.88rem; letter-spacing: 0.14em; }
+  .logo-word { font-size: 0.78rem; letter-spacing: 0.1em; }
   .logo-sub { letter-spacing: 0.35em; }
 
   .btn-portal { padding: 9px 18px; font-size: 0.5rem; }
@@ -779,7 +786,9 @@ footer {
 
 @media (max-width: 767px) {
   .philosophy { padding: 52px 20px; }
-  .philosophy-body { font-size: 0.95rem; }
+  .philosophy-inner { grid-template-columns: 1fr; gap: 20px; }
+  .philosophy-body { font-size: 1rem; line-height: 1.75; }
+  .philosophy-statement { font-size: clamp(1.6rem, 6vw, 2.2rem); }
 }
 
 
@@ -874,7 +883,7 @@ footer {
 
 /* ── OPENING ── */
 .opening {
-  min-height: 82svh;
+  min-height: 75svh;
   display: flex;
   align-items: center;
   justify-content: center;
